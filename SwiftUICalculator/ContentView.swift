@@ -27,7 +27,7 @@ enum ButtonOption: String {
     case eight = "8"
     case nine = "9"
     case zero = "0"
-
+    
     var color: Color {
         switch self {
         case .add, .subtract, .multiply, .divide, .equal:
@@ -48,7 +48,7 @@ struct ContentView: View {
     @State var value = "0"
     @State var currentNumber: Double = 0
     @State var currentOperation: Operation = .none
-
+    
     let buttons: [[ButtonOption]] = [
         [.clear, .negative, .percent, .divide],
         [.seven, .eight, .nine, .multiply],
@@ -56,14 +56,14 @@ struct ContentView: View {
         [.one, .two, .three, .add],
         [.zero, .decimal, .equal],
     ]
-
+    
     var body: some View {
         ZStack {
             Color.black.edgesIgnoringSafeArea(.all)
-
+            
             VStack {
                 Spacer()
-
+                
                 // Value
                 HStack {
                     Spacer()
@@ -73,7 +73,7 @@ struct ContentView: View {
                         .bold()
                 }
                 .padding()
-
+                
                 // Buttons
                 ForEach(buttons, id: \.self) { row in
                     HStack(spacing: 12) {
@@ -82,15 +82,28 @@ struct ContentView: View {
                                 var selfMutating = self
                                 selfMutating.onClick(button: item)
                             }, label: {
-                                Text(item.rawValue)
-                                    .font(.system(size: 32))
-                                    .foregroundColor(.white)
-                                    .frame(
-                                        width: self.buttonWidth(item: item),
-                                        height: self.buttonHeight()
-                                    )
-                                    .background(item.color)
-                                    .cornerRadius(self.buttonWidth(item: item)/2)
+                                if item == .clear {
+                                    // Check if currentNumber is not equal to 0, and set the label accordingly
+                                    Text(currentNumber != 0 ? "C" : item.rawValue)
+                                        .font(.system(size: 32))
+                                        .foregroundColor(.white)
+                                        .frame(
+                                            width: self.buttonWidth(item: item),
+                                            height: self.buttonHeight()
+                                        )
+                                        .background(item.color)
+                                        .cornerRadius(self.buttonWidth(item: item)/2)
+                                } else {
+                                    Text(item.rawValue)
+                                        .font(.system(size: 32))
+                                        .foregroundColor(.white)
+                                        .frame(
+                                            width: self.buttonWidth(item: item),
+                                            height: self.buttonHeight()
+                                        )
+                                        .background(item.color)
+                                        .cornerRadius(self.buttonWidth(item: item)/2)
+                                }
                             })
                         }
                     }
@@ -99,7 +112,7 @@ struct ContentView: View {
             }
         }
     }
-
+    
     mutating func onClick(button: ButtonOption) {
         switch button {
         case .one, .two, .three, .four, .five, .six, .seven, .eight, .nine, .zero:
@@ -160,9 +173,15 @@ struct ContentView: View {
             }
         case .clear:
             // Handle clear button
-            value = "0"
-            currentNumber = 0
-            currentOperation = .none
+            if value != "0" {
+                // Clear the currently typed number
+                value = "0"
+            } else if currentNumber != 0 {
+                // Clear all values when "AC" is pressed
+                value = "0"
+                currentNumber = 0
+                currentOperation = .none
+            }
         case .negative:
             // Handle negation button
             if let currentValue = Double(value) {
@@ -186,7 +205,7 @@ struct ContentView: View {
             }
         }
     }
-
+    
     // Determine the font size based on the length of the value.
     private func fontSizeForValue() -> CGFloat {
         let valueLength = CGFloat(value.count)
@@ -207,7 +226,7 @@ struct ContentView: View {
         }
         return (UIScreen.main.bounds.width - (5*12)) / 4
     }
-
+    
     private func buttonHeight() -> CGFloat {
         return (UIScreen.main.bounds.width - (5*12)) / 4
     }
