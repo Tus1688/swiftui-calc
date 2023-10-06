@@ -159,7 +159,7 @@ struct ContentView: View {
                     if currentValue != 0 {
                         value = "\(currentNumber / currentValue)"
                     } else {
-                        value = "Error"
+                        value = "Not a number"
                     }
                 case .none:
                     break
